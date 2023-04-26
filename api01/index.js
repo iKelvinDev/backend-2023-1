@@ -29,3 +29,12 @@ app.get('/alunos', (req, res) => {
 app.post('/alunos', (req, res) => {
   res.send('Executou um post');
 });
+
+app.get('/alunos/:id', (req, res) => {
+  const id = req.params.id;
+  if (id <= 10) {
+    res.status(200).send('Aluno localizado com sucesso');
+  } else {
+    res.status(404).send('Aluno não encontrado');
+  }
+});
