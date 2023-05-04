@@ -4,7 +4,8 @@
   "description": "primeiro projeto de webbackend",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "dev": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
@@ -13,5 +14,8 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
   }
 }

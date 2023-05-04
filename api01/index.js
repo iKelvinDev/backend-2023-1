@@ -36,6 +36,24 @@ app.post('/login', (req, res) => {
   }
 });
 
+function verificarToken(req, res, next){
+  const token = req.headers['x-access-token'];
+  if (!token) {
+    res.status(401).json({ auth: false, message: 'Nenhum token de autenticação informado.' });
+  }
+  else {
+    jwt.verify(token, MinhaSenha, function(err, decoded) {
+      if (err) {
+        res.status(500).json({ auth: false, message: 'Token inválido.' });
+      }
+      else {
+      console.log('Metodo acessado por ' + decoded.nome)
+      next();
+      }
+    });
+  }
+}
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
@@ -57,7 +75,7 @@ app.get('/alunos/:id', (req, res) => {
   }
 });
 
-app.get('/autor', (req, res) => {
+app.get('/autor', verificarToken, (req, res) => {
   con.query('SELECT * FROM tbAutor', (erroComandoSQL, result, fields) => {
     if (erroComandoSQL) {
       throw erroComandoSQL;
