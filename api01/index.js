@@ -1,9 +1,11 @@
 const express = require('express');
 const mysql = require('mysql');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = 3000;
 app.use(express.json());
+const MinhaSenha = 'ifrn2@23';
 
 var con = mysql.createConnection({
   host: 'localhost',
@@ -15,6 +17,22 @@ var con = mysql.createConnection({
 con.connect((erroConexao) => {
   if (erroConexao) {
     throw erroConexao;
+  }
+});
+
+// metodo de autenticacao
+app.post('/login', (req, res) => {
+  if(req.body.usuario === 'kelvin' && req.body.senha === '123'){
+  const id = 1;
+  const nome = "Kelvin Marques"
+  const grupo = "Admin"
+  const token = jwt.sign({ id, nome, grupo }, MinhaSenha, {
+    expiresIn: 60 // expires in 5min (300 segundos ==> 5 x 60)
+  });
+  res.json({ auth: true, token: token });
+  }
+  else {
+    res.status(403).json({message: 'Login inválido!'});
   }
 });
 
@@ -181,6 +199,25 @@ app.post('/editora', (req, res) => {
     }
     else {
       res.status(400).send('Erro ao incluir o registro');
+    }
+  });
+});
+
+app.put('/editora/:id', (req, res) => {
+  const ideditora = req.params.id;
+  const noeditora = req.body.noeditora;
+
+  const sql = 'UPDATE tbEditora SET NoEditora = ?, IdEditora = ? WHERE IdEditora = ?';
+  con.query(sql, [noeditora, ideditora], (erroComandoSQL, result, fields) => {
+    if (erroUpdate) {
+      throw erroUpdate;
+    }
+    
+    if (result.affectedRows > 0) {
+      res.status(200).send('Registro alterado com sucesso');
+    }
+    else {
+      res.status(400).send('Registro não encontrado');
     }
   });
 });
