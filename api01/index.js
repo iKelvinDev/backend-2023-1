@@ -7,6 +7,8 @@ const port = 3000;
 app.use(express.json());
 const MinhaSenha = 'ifrn2@23';
 
+var editoraRouter = require('./editora.js');
+
 var con = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -22,18 +24,24 @@ con.connect((erroConexao) => {
 
 // metodo de autenticacao
 app.post('/login', (req, res) => {
-  if(req.body.usuario === 'kelvin' && req.body.senha === '123'){
-  const id = 1;
-  const nome = "Kelvin Marques"
-  const grupo = "Admin"
-  const token = jwt.sign({ id, nome, grupo }, MinhaSenha, {
-    expiresIn: 60 // expires in 5min (300 segundos ==> 5 x 60)
+  const idOperador = req.body.idoperador;
+  const noOperador = req.body.nooperador;
+  const sql = 'SELECT * FROM tboperador WHERE IdOperador = ? AND NoOperador = ?';
+  con.query(sql, [idOperador, noOperador], (erroComandoSQL, result, fields) => {
+    if (erroComandoSQL) {
+      throw erroComandoSQL;
+    } else {
+      if (result.length > 0) {
+        //const nome = result[0].NoOperador;
+        const token = jwt.sign({ idOperador, noOperador }, MinhaSenha, {
+          expiresIn: 60 * 10, // expires in 5min (300 segundos ==> 5 x 60)
+        });
+        res.json({ auth: true, token: token });
+      } else {
+        res.status(403).json({ message: 'Login inválido!' });
+      }
+    }
   });
-  res.json({ auth: true, token: token });
-  }
-  else {
-    res.status(403).json({message: 'Login inválido!'});
-  }
 });
 
 function verificarToken(req, res, next){
@@ -157,88 +165,8 @@ app.put('/autor/:id', (req, res) => {
   });
 });
 
-/* Editora */
-
-app.get('/editora', (req, res) => {
-  con.query('SELECT * FROM tbEditora', (erroComandoSQL, result, fields) => {
-    if (erroComandoSQL) {
-      throw erroComandoSQL;
-    }
-    res.status(200).send(result);
-  });
-});
-
-app.get('/editora/:id', (req, res) => {
-  const idEditora = req.params.id;
-  const sql = 'SELECT * FROM tbEditora WHERE IdEditora = ?';
-  con.query(sql, [idEditora], (erroComandoSQL, result, fields) => {
-    if (erroComandoSQL) {
-      throw erroComandoSQL;
-    }
-    
-    if (result.length > 0) {
-      res.status(200).send(result);
-    }
-    else {
-      res.status(404).send('Não encontrado');
-    }
-  });
-});
-
-app.delete('/editora/:id', (req, res) => {
-  const idEditora = req.params.id;
-  const sql = 'DELETE FROM tbEditora WHERE IdEditora = ?';
-  con.query(sql, [idEditora], (erroComandoSQL, result, fields) => {
-    if (erroComandoSQL) {
-      throw erroComandoSQL;
-    }
-    
-    if (result.affectedRows > 0) {
-      res.status(200).send('Registro excluído com sucesso');
-    }
-    else {
-      res.status(404).send('Não encontrado');
-    }
-  });
-});
-
-app.post('/editora', (req, res) => {
-  const noeditora = req.body.noeditora;
-  const ideditora = req.body.ideditora;
-
-  const sql = 'INSERT INTO tbEditora (NoEditora, IdEditora) VALUES (?, ?)';
-  con.query(sql, [noeditora, ideditora], (erroComandoSQL, result, fields) => {
-    if (erroComandoSQL) {
-      throw erroComandoSQL;
-    }
-    
-    if (result.affectedRows > 0) {
-      res.status(200).send('Registro incluído com sucesso');
-    }
-    else {
-      res.status(400).send('Erro ao incluir o registro');
-    }
-  });
-});
-
-app.put('/editora/:id', (req, res) => {
-  const ideditora = req.params.id;
-  const noeditora = req.body.noeditora;
-
-  const sql = 'UPDATE tbEditora SET NoEditora = ?, IdEditora = ? WHERE IdEditora = ?';
-  con.query(sql, [noeditora, ideditora], (erroComandoSQL, result, fields) => {
-    if (erroUpdate) {
-      throw erroUpdate;
-    }
-    
-    if (result.affectedRows > 0) {
-      res.status(200).send('Registro alterado com sucesso');
-    }
-    else {
-      res.status(400).send('Registro não encontrado');
-    }
-  });
-});
+// Rotas de Editora
+app.use('/editora', editoraRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
