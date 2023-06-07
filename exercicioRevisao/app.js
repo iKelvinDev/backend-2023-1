@@ -19,3 +19,18 @@ connection.connect((err) => {
     console.log('Conectado ao Banco de Dados MySQL');
 });
 
+// Rota para buscar os usuários
+app.get('/users', (req, res) => {
+    connection.query('SELECT * FROM TbUsers', (err, rows) => {
+        if (err) {
+            console.error('Erro ao executar a consulta:', err);
+            return;
+        }
+        res.json(rows);
+    });
+});
+
+// Inicia o servidor
+app.listen(3000, () => {
+    console.log('Servidor está rodando na porta 3000');
+});
