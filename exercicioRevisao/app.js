@@ -21,7 +21,7 @@ connection.connect((err) => {
 
 // Rota para buscar os usuários
 app.get('/users', (req, res) => {
-    connection.query('SELECT * FROM TbUsers', (err, rows) => {
+    connection.query('SELECT CodUser, UserName, LoginName FROM TbUsers', (err, rows) => {
         if (err) {
             console.error('Erro ao executar a consulta:', err);
             return;
