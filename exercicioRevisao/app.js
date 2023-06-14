@@ -30,6 +30,19 @@ app.get('/users', (req, res) => {
     });
 });
 
+// Rota para buscar os usuários por id
+app.get('/users:id', (req, res) => {
+    const id = req.params['id'];
+    connection.query('SELECT CodUser, UserName, LoginName FROM TbUsers WHERE CodUser = ?',
+    [id], (err, rows) => {
+        if (err) {
+            console.error('Erro ao executar a consulta:', err);
+            return;
+        }
+        res.json(rows[0]);
+    });
+});
+
 // Inicia o servidor
 app.listen(3000, () => {
     console.log('Servidor está rodando na porta 3000');
