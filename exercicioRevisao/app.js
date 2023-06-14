@@ -7,7 +7,7 @@ const connection = mysql.createConnection({
     host:'localhost',
     user:'root',
     password:'',
-    database:'users'
+    database:'exercicio_backend'
 });
 
 // Conecta-se ao Banco de Dados
