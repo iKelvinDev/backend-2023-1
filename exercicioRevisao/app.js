@@ -1,6 +1,9 @@
 const express = require('express');
 const mysql = require('mysql');
 const app = express();
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 
 // Configuração da conexão com o Banco de Dados MySQL
 const connection = mysql.createConnection({
