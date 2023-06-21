@@ -3,6 +3,8 @@ const mysql = require('mysql');
 const app = express();
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const crypto = require('crypto');
+
 const bodyParser = require('body-parser');
 
 // Configuração da conexão com o Banco de Dados MySQL
@@ -27,10 +29,16 @@ function gerarToken(payload) {
     return jwt.sign(payload, senhaToken, {expiresIn: 20});
 };
 
+function encriptarSenha(senha){
+    const hash = crypto.createHash('sha256');
+    hash.update(senha);
+    return hash.digest('hex');
+}
+
 // Rota de login
 app.post('/login', (req,res) => {
     const loginname = req.body.loginname;
-    const password = req.body.password;
+    const password = encriptarSenha(req.body.password);
     connection.query('SELECT UserName FROM TbUsers WHERE loginName = ? AND password = ?', 
     [loginname, password], (error, rows) => {
         if(error) {
