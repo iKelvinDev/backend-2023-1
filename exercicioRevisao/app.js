@@ -27,6 +27,29 @@ function gerarToken(payload) {
     return jwt.sign(payload, senhaToken, {expiresIn: 20});
 };
 
+// Rota de login
+app.post('/login', (req,res) => {
+    const loginname = req.body.loginname;
+    const password = req.body.password;
+    connection.query('SELECT UserName FROM TbUsers WHERE loginName = ? AND password = ?', 
+    [loginname, password], (error, rows) => {
+        if(error) {
+            console.log('Erro ao processar o comando SQL.', )
+        }
+        else {
+            if(rows.length > 0) {
+                const payload = {noUsuario: rows[0].nomeUsuario};
+                const token = gerarToken(payload);
+                res.json({ acessToken: token});
+            }
+            else {
+                res.status(403).json({ messageErro: 'Login Inválido!' });
+            }
+            
+        }        
+    });
+});
+
 // Rota para buscar os usuários
 app.get('/users', (req, res) => {
     connection.query('SELECT CodUser, UserName, LoginName FROM TbUsers', (err, rows) => {
