@@ -22,6 +22,11 @@ connection.connect((err) => {
     console.log('Conectado ao Banco de Dados MySQL');
 });
 
+function gerarToken(payload) {
+    const senhaToken = 'kelvin123';
+    return jwt.sign(payload, senhaToken, {expiresIn: 20});
+};
+
 // Rota para buscar os usuários
 app.get('/users', (req, res) => {
     connection.query('SELECT CodUser, UserName, LoginName FROM TbUsers', (err, rows) => {
