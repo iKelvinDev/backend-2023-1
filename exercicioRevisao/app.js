@@ -39,7 +39,7 @@ function encriptarSenha(senha){
 app.post('/login', (req,res) => {
     const loginname = req.body.loginname;
     const password = encriptarSenha(req.body.password);
-    connection.query('SELECT UserName FROM TbUsers WHERE loginName = ? AND password = ?', 
+    connection.query('SELECT UserName FROM TbUsers WHERE LoginName = ? AND Password = ?', 
     [loginname, password], (error, rows) => {
         if(error) {
             console.log('Erro ao processar o comando SQL.', )
@@ -53,7 +53,6 @@ app.post('/login', (req,res) => {
             else {
                 res.status(403).json({ messageErro: 'Login Inválido!' });
             }
-            
         }        
     });
 });
@@ -79,6 +78,22 @@ app.get('/users:id', (req, res) => {
             return;
         }
         res.json(rows[0]);
+    });
+});
+
+// Rota para criar usuário
+app.post('/users', (req,res) => {
+    const noUsuario = req.body.nomeUsuario
+    const loginname = req.body.loginname;
+    const password = encriptarSenha(req.body.password);
+    connection.query('INSERT INTO TbUsuarios (UserName, LoginName, Password) VALUES(?,?,?)', 
+    [noUsuario, loginname, password], (error, rows) => {
+        if(error) {
+            console.log('Erro ao processar o comando SQL.', error.message)
+        }
+        else {
+                res.status(201).json({ messageErro: 'Usuário cadastrado com sucesso!' });
+            }
     });
 });
 
