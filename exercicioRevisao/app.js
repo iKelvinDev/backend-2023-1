@@ -105,7 +105,7 @@ app.post('/users', (req, res) => {
     const userName = req.body.UserName
     const loginName = req.body.LoginName;
     const password = encriptarSenha(req.body.password);
-    connection.query('INSERT INTO TbUsuarios (UserName, LoginName, Password) VALUES(?,?,?)',
+    connection.query('INSERT INTO TbUsers (UserName, LoginName, Password) VALUES(?,?,?)',
         [userName, loginName, password], (error, rows) => {
             if (error) {
                 console.log('Erro ao processar o comando SQL.', error.message);
