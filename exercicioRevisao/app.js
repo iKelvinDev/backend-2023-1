@@ -26,7 +26,7 @@ connection.connect((err) => {
 
 function gerarToken(payload) {
     const senhaToken = 'kelvin123';
-    return jwt.sign(payload, senhaToken, { expiresIn: 20 });
+    return jwt.sign(payload, senhaToken, { expiresIn: 60 * 10, }); // expires in 5min
 }
 
 function verificarToken(req, res, next) {
@@ -103,10 +103,10 @@ app.get('/users:id', verificarToken, (req, res) => {
 // Rota para criar usuário
 app.post('/users', (req, res) => {
     const userName = req.body.UserName
-    const loginname = req.body.LoginName;
+    const loginName = req.body.LoginName;
     const password = encriptarSenha(req.body.password);
     connection.query('INSERT INTO TbUsuarios (UserName, LoginName, Password) VALUES(?,?,?)',
-        [userName, loginname, password], (error, rows) => {
+        [userName, loginName, password], (error, rows) => {
             if (error) {
                 console.log('Erro ao processar o comando SQL.', error.message);
             }
