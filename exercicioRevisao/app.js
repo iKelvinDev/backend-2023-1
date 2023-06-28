@@ -59,8 +59,13 @@ function encriptarSenha(senha) {
 
 // Rota de login
 app.post('/login', (req, res) => {
+<<<<<<< HEAD
     const loginName = req.body.LoginName;
     const password = encriptarSenha(req.body.Password);
+=======
+    const loginName = req.body.loginName;
+    const password = encriptarSenha(req.body.password);
+>>>>>>> aaf7372037dcd8463cc222e938318de2cd2fbfe0
     connection.query('SELECT UserName FROM TbUsers WHERE LoginName = ? AND Password = ?',
         [loginName, password], (error, rows) => {
             if (error) {
