@@ -7,6 +7,9 @@ const crypto = require('crypto');
 
 const bodyParser = require('body-parser');
 
+app.use(cors());
+app.use(bodyParser.json());
+
 // Configuração da conexão com o Banco de Dados MySQL
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -56,10 +59,10 @@ function encriptarSenha(senha) {
 
 // Rota de login
 app.post('/login', (req, res) => {
-    const loginname = req.body.loginname;
-    const password = encriptarSenha(req.body.password);
+    const loginName = req.body.LoginName;
+    const password = encriptarSenha(req.body.Password);
     connection.query('SELECT UserName FROM TbUsers WHERE LoginName = ? AND Password = ?',
-        [loginname, password], (error, rows) => {
+        [loginName, password], (error, rows) => {
             if (error) {
                 console.log('Erro ao processar o comando SQL.',);
             }
@@ -102,8 +105,8 @@ app.get('/users:id', verificarToken, (req, res) => {
 
 // Rota para criar usuário
 app.post('/users', (req, res) => {
-    const userName = req.body.UserName
-    const loginName = req.body.LoginName;
+    const userName = req.body.userName
+    const loginName = req.body.loginName;
     const password = encriptarSenha(req.body.password);
     connection.query('INSERT INTO TbUsers (UserName, LoginName, Password) VALUES(?,?,?)',
         [userName, loginName, password], (error, rows) => {
