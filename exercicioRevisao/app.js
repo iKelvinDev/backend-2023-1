@@ -1,14 +1,18 @@
 const express = require('express');
 const mysql = require('mysql');
-const app = express();
-const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const formidable = require('formidable');
+const fs = require('fs');
 
 const bodyParser = require('body-parser');
 
+const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+
+const senhaToken = 'IFRN2@23';
 
 // Configuração da conexão com o Banco de Dados MySQL
 const connection = mysql.createConnection({
@@ -53,7 +57,7 @@ function verificarToken(req, res, next) {
 
 function encriptarSenha(senha) {
     const hash = crypto.createHash('sha256');
-    hash.update(senha);
+    hash.update(senha + senhaToken);
     return hash.digest('hex');
 }
 
@@ -91,7 +95,7 @@ app.get('/users', verificarToken, (req, res) => {
 });
 
 // Rota para buscar os usuários por id
-app.get('/users:id', verificarToken, (req, res) => {
+app.get('/users/:id', verificarToken, (req, res) => {
     const id = req.params['id'];
     connection.query('SELECT CodUser, UserName, LoginName FROM TbUsers WHERE CodUser = ?',
         [id], (err, rows) => {
@@ -117,6 +121,54 @@ app.post('/users', (req, res) => {
                 res.status(201).json({ messageErro: 'Usuário cadastrado com sucesso!' });
             }
         });
+});
+
+app.get('/photo/:id', (req, res) => {
+    const id = req.params['id'];
+    const sql = 'SELECT photo FROM TbUsers WHERE CodUser = ?';
+    connection.query(sql, [id], (err, result) => {
+        if (err) {
+            throw err;
+        }
+
+        if (result.length > 0) {
+            const photo = result[0].photo;
+            const fs = require('fs');
+            fs.writeFileSync('foto.jpg', photo);
+            //console.log('Imagem recuperada e salva com sucesso!');
+            res.writeHead(200, { 'Content-Type': 'image/jpeg' });
+            res.end(photo, 'binary');
+        } else {
+            console.log('Nenhuma imagem encontrada com o ID fornecido.');
+            res.status(404).json({ mensagem: 'Nenhuma imagem encontrada' });
+        }
+    });
+});
+
+app.put('/photo/:id', (req, res) => {
+    const id = req.params['id'];
+    const form = new formidable.IncomingForm();
+    form.parse(req, (err, fields, files) => {
+        if (err) {
+            next(err);
+        } else {
+            const caminhoOriginal = files.arquivo[0].filepath;
+            console.log(caminhoOriginal);
+            const image = fs.readFileSync(caminhoOriginal);
+            const sql = 'UPDATE TbUsers SET photo = ? WHERE CodUser = ?';
+            connection.query(sql, [image, id], (err, result) => {
+                if (err) {
+                    res
+                        .status(400)
+                        .json({ mensagem: `Erro ao gravar mensagem. Erro: ${err.message}` });
+                    throw err;
+                } else {
+                    //console.log('Imagem gravada com sucesso!');
+                    res.status(200).json({ mensagem: 'Imagem gravada com sucesso.' });
+                }
+            });
+        }
+    });
 });
 
 // Inicia o servidor
